@@ -2278,6 +2278,10 @@
                     <button class="btn-secondary" onclick="resetPLForm()">Cancel</button>
                 </div>
             </div>
+
+            <div id="pl-clients" style="display:none">
+                <div id="pl-clients-content"></div>
+            </div>
         </div>
 
     </div>
@@ -3369,14 +3373,8 @@
 <div class="proj-addr">${p.address || ''}</div>
 </div>
 
-<div id="pl-clients" style="display:none">
-<div id="pl-clients-content"></div>
-</div>
 <div style="display:flex;gap:8px;align-items:center">
 <span class="badge ${
-
-
-
 
 
         p.status}">${statusLabel[p.status] || p.status}</span>

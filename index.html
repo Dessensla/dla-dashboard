@@ -5233,6 +5233,11 @@ animation:fadeUp 1.1s ease;
     // pl: handled by Firebase above
 
     function showPLTab(tab) {
+        // Make sure tab-pl is active
+        var tabPl = document.getElementById('tab-pl');
+        if (tabPl && !tabPl.classList.contains('active')) {
+            showTab('pl');
+        }
         ['sheet', 'overview', 'transactions', 'add', 'clients'].forEach(function(t) {
             var el = document.getElementById('pl-' + t);
             if (el)
@@ -5255,11 +5260,8 @@ animation:fadeUp 1.1s ease;
             rebuildPLDropdowns();
             rebuildPLProjectDropdown();
         }
-        if (tab === 'clients') {
-            loadCustomProjectsFromFirebase().then(function() {
-                renderPLClients();
-            });
-        }
+        if (tab === 'clients')
+            renderPLClients();
     }
 
 

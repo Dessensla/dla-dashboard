@@ -5346,10 +5346,19 @@ animation:fadeUp 1.1s ease;
         var sel = document.getElementById('pl-project');
         if (!sel)
             return;
-        var projects = getCustomProjects();
-        var cur = curVal || sel.value;
+        // Get projects from cache + all unique projects from PL entries
+        var fromList = getCustomProjects();
+        var fromEntries = getPL().map(function(e) {
+            return e.project || '';
+        }).filter(function(p) {
+            return p.trim();
+        });
+        var allProjects = [...new Set([...fromList, ...fromEntries])].sort();
+        var cur = curVal !== undefined ? curVal : (sel.value || '');
         sel.innerHTML = '<option value="">— No project —</option>';
-        projects.sort().forEach(function(p) {
+        allProjects.forEach(function(p) {
+            if (!p.trim())
+                return;
             var opt = document.createElement('option');
             opt.value = p;
             opt.textContent = p;
@@ -5420,6 +5429,8 @@ animation:fadeUp 1.1s ease;
                 saveCustomProject(projectRef);
         } else if (projectSel) {
             projectRef = projectSel.value;
+            if (projectRef && projectRef !== '__other__')
+                saveCustomProject(projectRef);
         }
         const entry = {
             id: document.getElementById('pl-editid').value || Date.now().toString(),
@@ -5491,25 +5502,15 @@ animation:fadeUp 1.1s ease;
         calcPLTotal();
         showPLTab('add');
         setTimeout(function() {
-            rebuildPLProjectDropdown(e.project || '');
-            var sel = document.getElementById('pl-project');
-            if (sel && e.project) {
-                // Check if project exists in list
-                var found = false;
-                for (var i = 0; i < sel.options.length; i++) {
-                    if (sel.options[i].value === e.project) {
-                        found = true;
-                        break;
-                    }
-                }
-                if (found) {
+            if (e.project && e.project.trim()) {
+                // Always save project to local list and rebuild dropdown with it selected
+                saveCustomProject(e.project);
+                rebuildPLProjectDropdown(e.project);
+                var sel = document.getElementById('pl-project');
+                if (sel)
                     sel.value = e.project;
-                }
-                else {
-                    // Add it and select it
-                    saveCustomProject(e.project);
-                    rebuildPLProjectDropdown(e.project);
-                }
+            } else {
+                rebuildPLProjectDropdown('');
             }
         }, 50);
     }
@@ -5814,13 +5815,15 @@ ${buildYearContent(yr)}
         if (!confirm('Re-sync all P&L entries to Firebase? This fixes missing project fields.'))
             return;
         var entries = getPL();
-        // Ensure all entries have project field
+        var fixed = 0;
         entries.forEach(function(e) {
-            if (e.project === undefined)
+            if (e.project === undefined) {
                 e.project = '';
+                fixed++;
+            }
         });
         savePL(entries);
-        alert('Done! ' + entries.length + ' entries re-synced to Firebase.');
+        alert('Done! ' + entries.length + ' entries re-synced. ' + fixed + ' entries updated with project field.');
     }
 
     function fixPLCategories() {
@@ -5912,9 +5915,18 @@ ${buildYearContent(yr)}
         if (!sel)
             return;
         var cur = sel.value;
-        var projects = getCustomProjects().sort();
+        // Get projects from both list and actual entries
+        var fromList = getCustomProjects();
+        var fromEntries = getPL().map(function(e) {
+            return e.project || '';
+        }).filter(function(p) {
+            return p.trim();
+        });
+        var projects = [...new Set([...fromList, ...fromEntries])].sort();
         sel.innerHTML = '<option value="">All projects</option>';
         projects.forEach(function(p) {
+            if (!p.trim())
+                return;
             var opt = document.createElement('option');
             opt.value = p;
             opt.textContent = p;
@@ -6413,9 +6425,18 @@ ${buildYearContent(yr)}
         if (!sel)
             return;
         var cur = sel.value;
-        var projects = getCustomProjects().sort();
+        // Get projects from both list and actual entries
+        var fromList = getCustomProjects();
+        var fromEntries = getPL().map(function(e) {
+            return e.project || '';
+        }).filter(function(p) {
+            return p.trim();
+        });
+        var projects = [...new Set([...fromList, ...fromEntries])].sort();
         sel.innerHTML = '<option value="">All projects</option>';
         projects.forEach(function(p) {
+            if (!p.trim())
+                return;
             var opt = document.createElement('option');
             opt.value = p;
             opt.textContent = p;

@@ -5253,8 +5253,10 @@ animation:fadeUp 1.1s ease;
             populatePLProjectFilter();
             renderPLTransactions();
         }
-        if (tab === 'add')
+        if (tab === 'add') {
             rebuildPLDropdowns();
+            rebuildPLProjectDropdown();
+        }
         if (tab === 'clients') {
             loadCustomProjectsFromFirebase().then(function() {
                 renderPLClients();
